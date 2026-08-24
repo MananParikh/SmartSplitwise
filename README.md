@@ -65,9 +65,12 @@ already filled in. Good for a quick look or a screen recording.
 ## What's in here
 
 - `manifest.json` — the extension manifest
-- `popup.*` — the toolbar popup that scans the current page
+- `popup.*` — the toolbar popup that scans the current page and hands the data off
 - `scraper.js` — reads the order data off the page
-- `app.*` — the main window where you assign items and split
+- `app.html` / `app.css` — the main window's markup and styling
+- `data.js` — app state and the storage that loads the scan/people into the page
+- `render.js` — draws the page from that state
+- `logic.js` — the split math, paste parser, Splitwise summary, and the interactions
 - `demo.html` — standalone demo with sample data
 - `icons/` — the icon
 
