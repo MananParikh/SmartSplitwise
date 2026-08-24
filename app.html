@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SmartSplitwise</title>
+    <link rel="stylesheet" href="app.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar__brand">
+        <img src="icons/icon48.png" alt="" class="topbar__logo" />
+        <div>
+          <h1>SmartSplitwise</h1>
+          <p class="topbar__tag">Assign items, split tax fairly, settle up.</p>
+        </div>
+      </div>
+      <div class="topbar__actions">
+        <label class="cur">
+          Currency
+          <select id="currency">
+            <option>$</option>
+            <option>€</option>
+            <option>£</option>
+            <option>₹</option>
+          </select>
+        </label>
+        <button class="ghostbtn" id="clearBtn">Clear all</button>
+      </div>
+    </header>
+
+    <div class="source" id="source"></div>
+
+    <main class="grid">
+      <!-- LEFT -->
+      <section class="col">
+        <!-- Paste a receipt -->
+        <div class="card">
+          <div class="card__head">
+            <h2>Paste a receipt</h2>
+            <button class="chipbtn" id="pasteToggle">show</button>
+          </div>
+          <p class="card__sub">
+            Most reliable way. Paste your itemized receipt — the store's email
+            confirmation, a "view receipt" page, or a printout — and it pulls out
+            the items and totals.
+          </p>
+          <div id="pasteWrap" hidden>
+            <textarea
+              id="pasteBox"
+              class="pastebox"
+              placeholder="e.g.&#10;Whole Milk 3.98&#10;Large Eggs 4.52&#10;Bread 2.48&#10;Subtotal 10.98&#10;Tax 0.66&#10;Total 11.64"
+            ></textarea>
+            <div class="pasterow">
+              <button class="addbtn" id="parseBtn">Parse receipt</button>
+              <span class="paste__hint" id="parseHint"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- People -->
+        <div class="card">
+          <div class="card__head">
+            <h2>People</h2>
+            <span class="card__hint">tap a name on an item to assign it</span>
+          </div>
+          <div class="people" id="people"></div>
+          <form class="addrow" id="addPersonForm">
+            <input
+              id="personName"
+              placeholder="Add a person (e.g. Roommate A)"
+              maxlength="24"
+              autocomplete="off"
+            />
+            <button class="addbtn" type="submit">+ Add</button>
+          </form>
+        </div>
+
+        <!-- Items -->
+        <div class="card">
+          <div class="card__head">
+            <h2>Items</h2>
+            <div class="card__headbtns">
+              <button class="chipbtn" id="everyoneAll">Everyone shares all</button>
+              <button class="chipbtn" id="clearAssign">Clear assignments</button>
+            </div>
+          </div>
+          <div id="items" class="items"></div>
+          <button class="addbtn addbtn--wide" id="addItem">+ Add item</button>
+        </div>
+
+        <!-- Charges -->
+        <div class="card">
+          <div class="card__head"><h2>Charges</h2></div>
+          <div class="charges">
+            <div class="charge">
+              <label>Items subtotal</label>
+              <output id="itemsSum">$0.00</output>
+            </div>
+            <div class="charge">
+              <label for="tax">Tax</label>
+              <input type="number" step="0.01" min="0" id="tax" placeholder="0.00" />
+            </div>
+            <div class="charge">
+              <label for="fees">Fees / delivery / tip</label>
+              <input type="number" step="0.01" min="0" id="fees" placeholder="0.00" />
+            </div>
+            <div class="charge">
+              <label for="discount">Discounts</label>
+              <input type="number" step="0.01" min="0" id="discount" placeholder="0.00" />
+            </div>
+            <div class="charge charge--total">
+              <label>Bill total</label>
+              <output id="billTotal">$0.00</output>
+            </div>
+          </div>
+          <p class="charge__note" id="totalNote" hidden></p>
+        </div>
+      </section>
+
+      <!-- RIGHT -->
+      <aside class="col col--right">
+        <div class="card card--result">
+          <div class="card__head">
+            <h2>Who owes what</h2>
+            <label class="paidby">
+              Paid by
+              <select id="payer"></select>
+            </label>
+          </div>
+          <div id="warnings"></div>
+          <div id="shares" class="shares"></div>
+          <div class="settle" id="settle"></div>
+          <button class="btn btn--copy" id="copyBtn">
+            <span id="copyLabel">Copy summary for Splitwise</span>
+          </button>
+          <div class="toast" id="toast" hidden>Copied to clipboard ✓</div>
+        </div>
+      </aside>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
