@@ -1,0 +1,231 @@
+:root {
+  --bg: #0f1220;
+  --panel: #171a2b;
+  --panel-2: #1f2338;
+  --text: #eef0f7;
+  --muted: #9aa0b5;
+  --line: #2a2f47;
+  --brand-a: #10b981;
+  --brand-b: #4f46e5;
+  --accent: #34d399;
+  --danger: #f87171;
+  --radius: 14px;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 340px;
+  margin: 0;
+  background: radial-gradient(120% 100% at 0% 0%, #1a1e33 0%, var(--bg) 55%);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 16px 8px;
+}
+.brand__logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+.brand__name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  background: linear-gradient(90deg, var(--brand-a), #8b8ff6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.brand__tag {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.pop {
+  padding: 8px 16px 4px;
+}
+.pop__hint {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 4px 0 14px;
+}
+
+.btn {
+  width: 100%;
+  border: 0;
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.08s ease, filter 0.15s ease, opacity 0.15s ease;
+}
+.btn:active {
+  transform: translateY(1px) scale(0.995);
+}
+.btn--primary {
+  background: linear-gradient(100deg, var(--brand-a), var(--brand-b));
+  box-shadow: var(--shadow);
+}
+.btn--primary:hover {
+  filter: brightness(1.08);
+}
+.btn--primary:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+.btn__icon {
+  display: inline-block;
+  margin-right: 6px;
+}
+.btn__icon.spin {
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.btn--go {
+  margin-top: 12px;
+  background: linear-gradient(100deg, #22c55e, #16a34a);
+}
+.btn--go:hover {
+  filter: brightness(1.08);
+}
+
+.preview {
+  margin-top: 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 12px;
+  animation: rise 0.18s ease;
+}
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.preview__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.preview__site {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+.badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+.badge--high {
+  color: #052e1a;
+  background: var(--accent);
+  border-color: transparent;
+}
+.badge--medium {
+  color: #3b2a05;
+  background: #fbbf24;
+  border-color: transparent;
+}
+.badge--low {
+  color: #fff;
+  background: #6b7280;
+  border-color: transparent;
+}
+
+.preview__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  text-align: center;
+}
+.preview__stats > div {
+  background: var(--panel-2);
+  border-radius: 10px;
+  padding: 8px 4px;
+}
+.preview__stats span {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+}
+.preview__stats small {
+  font-size: 9.5px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.error {
+  margin-top: 12px;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  color: #fecaca;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.linkbtn {
+  display: block;
+  width: 100%;
+  background: none;
+  border: 0;
+  color: var(--accent);
+  font-size: 12px;
+  padding: 12px 0 6px;
+  cursor: pointer;
+  text-align: center;
+}
+.linkbtn:hover {
+  text-decoration: underline;
+}
+.linkbtn--muted {
+  color: var(--muted);
+  width: auto;
+  padding: 0;
+}
+
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px 14px;
+  border-top: 1px solid var(--line);
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--muted);
+}
