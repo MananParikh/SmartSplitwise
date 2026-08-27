@@ -443,8 +443,73 @@
     return out;
   }
 
+  // Walmart's order-details page ships the whole order inside __NEXT_DATA__ (on a
+  // fresh page load). The item name is nested under productInfo, which is why the
+  // generic walker missed it — read the known shape directly.
+  function parseWalmart() {
+    const el = document.getElementById("__NEXT_DATA__");
+    if (!el) return null;
+    let data;
+    try {
+      data = JSON.parse(el.textContent || "{}");
+    } catch (e) {
+      return null;
+    }
+    const order =
+      data && data.props && data.props.pageProps && data.props.pageProps.initialData &&
+      data.props.pageProps.initialData.data && data.props.pageProps.initialData.data.order;
+    if (!order) return null;
+
+    // walk the order tree for item objects (productInfo.name + priceInfo.linePrice),
+    // de-duplicating the same item across its several representations.
+    const seen = new Set();
+    const items = [];
+    (function walk(node, depth) {
+      if (!node || typeof node !== "object" || depth > 9) return;
+      if (Array.isArray(node)) {
+        node.forEach((n) => walk(n, depth + 1));
+        return;
+      }
+      const pi = node.productInfo;
+      const price = node.priceInfo;
+      if (pi && pi.name && price && price.linePrice) {
+        const val = deepPrice(price.linePrice, 0);
+        const key = pi.usItemId || pi.name + "|" + val;
+        if (val != null && val > 0 && !seen.has(key)) {
+          seen.add(key);
+          const q = Math.round(Number(node.quantity)) || 1;
+          items.push({ name: pi.name, price: val, qty: q >= 1 ? q : 1 });
+        }
+      }
+      for (const k of Object.keys(node)) walk(node[k], depth + 1);
+    })(order, 0);
+    if (!items.length) return null;
+
+    const pd = order.priceDetails || {};
+    const valOf = (o) => (o && typeof o.value === "number" ? o.value : null);
+    let fees = 0, sawFee = false;
+    if (Array.isArray(pd.fees)) {
+      pd.fees.forEach((f) => {
+        if (f && typeof f.value === "number") { fees += f.value; sawFee = true; }
+      });
+    }
+    const tip = valOf(pd.driverTip);
+    if (tip) { fees += tip; sawFee = true; }
+
+    return {
+      items,
+      subtotal: valOf(pd.subTotal),
+      tax: valOf(pd.taxTotal),
+      total: valOf(pd.grandTotal),
+      fees: sawFee ? Number(fees.toFixed(2)) : null,
+      discount: null, // "savings" is already reflected in each line price
+    };
+  }
+
   function parseSite() {
-    if (/instacart\.com/i.test(location.hostname)) return parseInstacart();
+    const h = location.hostname;
+    if (/instacart\.com/i.test(h)) return parseInstacart();
+    if (/walmart\.com/i.test(h)) return parseWalmart();
     return null;
   }
 
