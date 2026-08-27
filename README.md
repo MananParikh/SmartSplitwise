@@ -69,8 +69,9 @@ already filled in. Good for a quick look or a screen recording.
 - `scraper.js` — reads the order data off the page
 - `app.html` / `app.css` — the main window's markup and styling
 - `data.js` — app state and the storage that loads the scan/people into the page
+- `parser.js` — turns pasted receipt text into structured data and loads it into state
 - `render.js` — draws the page from that state
-- `logic.js` — the split math, paste parser, Splitwise summary, and the interactions
+- `logic.js` — the split math, Splitwise summary, and the interactions
 - `demo.html` — standalone demo with sample data
 - `icons/` — the icon
 
