@@ -381,11 +381,107 @@
   }
 
   // ==========================================================================
+  // 3) site-specific parsers (clean, stable receipt pages)
+  // ==========================================================================
+  // Instacart's printed/emailed receipt page is server-rendered and tidy: each
+  // item is a .item-block with the name, a "N x $unit" line, and a .total line
+  // total; the order totals live in ul.charges. Read it directly.
+  function parseInstacart() {
+    const rows = document.querySelectorAll(".item-block .item-row");
+    if (!rows.length) return null;
+
+    const items = [];
+    rows.forEach((row) => {
+      const nameEl = row.querySelector(".item-name");
+      const priceEl = row.querySelector(".item-price");
+      if (!nameEl || !priceEl) return;
+
+      // name = the item-name text without the size / "N x $unit" / savings bits
+      const clone = nameEl.cloneNode(true);
+      clone.querySelectorAll("small, br, .savings-lines").forEach((n) => n.remove());
+      const name = (clone.textContent || "").replace(/\s+/g, " ").trim();
+
+      // quantity from a "2 x $2.65" line (skip weight-priced "1.12 lb x $0.49")
+      let qty = 1;
+      const muted = nameEl.querySelector("small.muted");
+      if (muted) {
+        const m = muted.textContent.replace(/\s+/g, " ").match(/^\s*(\d{1,3})\s*x\s/i);
+        if (m) qty = parseInt(m[1], 10);
+      }
+
+      // line total = the last .total (the final, post-discount price)
+      const totals = priceEl.querySelectorAll(".total");
+      const price = totals.length ? parseMoney(totals[totals.length - 1].textContent) : null;
+
+      if (name && price != null && price > 0) items.push({ name, price, qty });
+    });
+    if (!items.length) return null;
+
+    const out = { items, subtotal: null, tax: null, fees: null, discount: null, total: null };
+    let feeSum = 0, taxSum = 0, discSum = 0;
+    let sawFee = false, sawTax = false, sawDisc = false;
+    document.querySelectorAll("ul.charges li.charge-row").forEach((li) => {
+      const typeEl = li.querySelector(".charge-type");
+      const amtEl = li.querySelector(".amount");
+      if (!typeEl || !amtEl) return;
+      const type = (typeEl.textContent || "").replace(/\s+/g, " ").trim();
+      const amt = parseMoney(amtEl.textContent);
+      if (amt == null) return;
+      if (/items?\s*subtotal/i.test(type)) out.subtotal = amt;
+      else if (/tax/i.test(type)) { taxSum += amt; sawTax = true; }
+      else if (/\b(fee|service|delivery|shipping|bag)\b/i.test(type)) { feeSum += amt; sawFee = true; }
+      else if (/\b(discount|promo(?:tion)?|coupon|credit)\b/i.test(type) && !/saved|savings/i.test(type)) {
+        discSum += amt; sawDisc = true;
+      } else if (/^total charged$|^total$/i.test(type)) {
+        if (out.total == null) out.total = amt;
+      }
+      // "You saved" and "$0 Delivery!" lines are informational — already priced in.
+    });
+    if (sawTax) out.tax = taxSum;
+    if (sawFee) out.fees = feeSum;
+    if (sawDisc) out.discount = discSum;
+    return out;
+  }
+
+  function parseSite() {
+    if (/instacart\.com/i.test(location.hostname)) return parseInstacart();
+    return null;
+  }
+
+  // ==========================================================================
   // main
   // ==========================================================================
   function run() {
-    const pageText = document.body ? document.body.innerText.slice(0, 30000) : "";
+    const pageText = document.body
+      ? (document.body.innerText || document.body.textContent || "").slice(0, 30000)
+      : "";
     const currency = detectCurrency(pageText);
+
+    // a dedicated parser wins when we have one for this site and it finds items
+    const site = parseSite();
+    if (site && site.items.length) {
+      const sum = site.items.reduce((a, b) => a + b.price, 0);
+      const conf =
+        site.subtotal != null
+          ? Math.abs(sum - site.subtotal) < 0.75 ? "high" : "medium"
+          : site.items.length >= 3 ? "high" : "medium";
+      return {
+        ok: true,
+        site: location.hostname.replace(/^www\./, ""),
+        url: location.href,
+        title: document.title || location.hostname,
+        currency,
+        items: site.items,
+        itemsSource: "site",
+        subtotal: site.subtotal != null ? Number(site.subtotal.toFixed(2)) : null,
+        tax: site.tax != null ? Number(site.tax.toFixed(2)) : null,
+        fees: site.fees != null ? Number(site.fees.toFixed(2)) : null,
+        discount: site.discount != null ? Number(site.discount.toFixed(2)) : null,
+        total: site.total != null ? Number(site.total.toFixed(2)) : null,
+        confidence: conf,
+        scannedAt: Date.now(),
+      };
+    }
 
     const json = extractFromJSON();
     let items = json.items;

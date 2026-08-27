@@ -25,9 +25,23 @@ Two ways to get a receipt in:
 - **Scan the page.** Click the toolbar icon on an order page and it tries to read
   the items straight from the page's data.
 
-A heads-up on scanning: some sites (Walmart's grocery order page, for one) don't
-actually put the individual item prices on the page — they only show the subtotal.
-There's nothing to scrape in that case, so pasting the receipt is the way around it.
+### Where "Scan this page" works right now
+
+Scanning depends entirely on whether a site actually puts the item data on the
+page, and every store does it differently. Where it stands today:
+
+- ✅ **Weee** (`weee.com/en`) — works well.
+- ✅ **Instacart receipt page** — the printed/emailed receipt (the one titled
+  "Instacart Receipt for Order #…") works well. There's a dedicated parser for it.
+- ❌ **Walmart** order pages — **not supported.** Walmart's order page only shows
+  the subtotal; the individual item prices are never loaded into the page, so
+  there's nothing to scan. Use paste instead.
+- ❌ **Instacart's live in-app order page** — **not supported** (that's the
+  single-page app, different from the receipt page above). Open the receipt, or
+  paste it.
+
+For anything not listed, scanning may or may not catch it — and paste always
+works. This is an ongoing list; more sites will get dedicated parsers over time.
 
 Once the items are in:
 
