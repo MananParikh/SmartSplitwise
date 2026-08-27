@@ -33,9 +33,9 @@ page, and every store does it differently. Where it stands today:
 - ✅ **Weee** (`weee.com/en`) — works well.
 - ✅ **Instacart receipt page** — the printed/emailed receipt (the one titled
   "Instacart Receipt for Order #…") works well. There's a dedicated parser for it.
-- ❌ **Walmart** order pages — **not supported.** Walmart's order page only shows
-  the subtotal; the individual item prices are never loaded into the page, so
-  there's nothing to scan. Use paste instead.
+- ✅ **Walmart order-details page** (`walmart.com/orders/…`) — works. One catch:
+  **reload the page first.** Walmart only embeds the order data when you load the
+  URL fresh; if you clicked through from another Walmart page it won't be there.
 - ❌ **Instacart's live in-app order page** — **not supported** (that's the
   single-page app, different from the receipt page above). Open the receipt, or
   paste it.
@@ -49,9 +49,12 @@ Once the items are in:
    summary knows which one is you.
 2. For each item, tap whoever shared it. If you bought several of something and
    people took different amounts, switch that item to **by quantity** and give each
-   person their share as `x` out of `y`.
-3. Tax and fees get split in proportion to what each person actually bought.
-4. Hit **Copy summary for Splitwise** and paste the breakdown into the expense notes,
+   person their share as `x` out of `y`. `x` can be a fraction (0.25, 1.5, …), so
+   you can split a single thing unevenly too.
+3. Anything you haven't fully assigned shows up in the results panel with the
+   leftover amount and a link that jumps you straight to the item.
+4. Tax and fees get split in proportion to what each person actually bought.
+5. Hit **Copy summary for Splitwise** and paste the breakdown into the expense notes,
    so everyone can see how it was worked out.
 
 ## The split, briefly

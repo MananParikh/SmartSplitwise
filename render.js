@@ -91,6 +91,7 @@ function renderItems() {
   state.items.forEach((it) => {
     const qtyMode = isQtyMode(it);
     const el = document.createElement("div");
+    el.id = "item-" + it.id;
     el.className = "item" + (itemUnassigned(it) ? " item--unassigned" : "");
 
     // --- top: name / price / delete ---
@@ -180,17 +181,18 @@ function renderItems() {
         row.innerHTML = `
           <span class="tag__dot" style="background:${p.color}"></span>
           <span class="unitrow__name">${escapeHtml(p.name)}</span>
-          <span class="unitrow__frac">${x}/${q}</span>
+          <span class="unitrow__frac">${fmtQty(x)}/${q}</span>
           <span class="unitrow__cost">${x > 0 ? money(unit * x) : ""}</span>
           <span class="stepper">
             <button class="stepper__b" data-d="-1" ${x <= 0 ? "disabled" : ""}>−</button>
-            <input class="stepper__i" type="number" min="0" step="1" value="${x}" />
+            <input class="stepper__i" type="number" min="0" step="any" value="${fmtQty(x)}" />
             <button class="stepper__b" data-d="1">+</button>
           </span>`;
         row.querySelector('[data-d="-1"]').addEventListener("click", () => setUnits(it, p.id, x - 1));
         row.querySelector('[data-d="1"]').addEventListener("click", () => setUnits(it, p.id, x + 1));
+        // accepts fractions like 0.25 or 1.5, not just whole numbers
         row.querySelector(".stepper__i").addEventListener("change", (e) =>
-          setUnits(it, p.id, Math.round(num(e.target.value)))
+          setUnits(it, p.id, num(e.target.value))
         );
         assign.appendChild(row);
       });
@@ -198,11 +200,11 @@ function renderItems() {
       hint.className = "item__qtyhint";
       const rem = q - totalU;
       hint.innerHTML =
-        `<span>${totalU}/${q} units assigned</span>` +
-        (rem > 0
-          ? `<span class="item__qtyhint--warn">${rem} unit${rem === 1 ? "" : "s"} (${money(unit * rem)}) unassigned</span>`
-          : totalU > q
-          ? `<span class="item__qtyhint--warn">over-assigned — split across ${totalU} units</span>`
+        `<span>${fmtQty(totalU)}/${q} units assigned</span>` +
+        (rem > 0.0001
+          ? `<span class="item__qtyhint--warn">${fmtQty(rem)} unit${rem === 1 ? "" : "s"} (${money(unit * rem)}) unassigned</span>`
+          : totalU > q + 0.0001
+          ? `<span class="item__qtyhint--warn">over-assigned — split across ${fmtQty(totalU)} units</span>`
           : `<span class="item__qtyhint--ok">fully assigned ✓</span>`);
       assign.appendChild(hint);
     }
@@ -218,18 +220,34 @@ function renderResult() {
   const { shares, unallocated, allocatedTotal } = compute();
   const maxShare = Math.max(0.01, ...shares.map((s) => s.total));
 
-  // warnings
+  // warnings — any item with unallocated dollars (fully unassigned, OR a
+  // partially-assigned by-quantity item with leftover units) shows as a chip
+  // you can click to jump to and finish.
   const warn = $("warnings");
-  const msgs = [];
-  const unassignedCount = state.items.filter((it) => itemUnassigned(it)).length;
-  if (unassignedCount > 0) {
-    msgs.push(
-      `${unassignedCount} item${unassignedCount > 1 ? "s are" : " is"} unassigned — ${money(
-        unallocated
-      )} isn't allocated to anyone yet.`
-    );
+  warn.innerHTML = "";
+  const needFix = state.items.filter((it) => itemUnallocatedAmt(it) > 0.004);
+  if (needFix.length) {
+    const box = document.createElement("div");
+    box.className = "warn";
+    const head = document.createElement("div");
+    head.textContent = `${money(unallocated)} isn't allocated to anyone yet — ${needFix.length} item${
+      needFix.length > 1 ? "s" : ""
+    }. Tap to fix:`;
+    box.appendChild(head);
+    const links = document.createElement("div");
+    links.className = "warn__links";
+    needFix.forEach((it) => {
+      const b = document.createElement("button");
+      b.className = "warn__link";
+      const left = itemUnallocatedAmt(it);
+      const nm = (it.name || "").trim() || "Unnamed item";
+      b.textContent = `${nm} (${money(left)})`;
+      b.addEventListener("click", () => jumpToItem(it.id));
+      links.appendChild(b);
+    });
+    box.appendChild(links);
+    warn.appendChild(box);
   }
-  warn.innerHTML = msgs.map((m) => `<div class="warn">${m}</div>`).join("");
 
   // per-person shares
   const box = $("shares");
@@ -316,6 +334,15 @@ function renderCharges() {
       )}. Adjust items, tax, or fees so it matches.`;
     } else note.hidden = true;
   } else note.hidden = true;
+}
+
+// scroll an item into view and flash it — used by the "unassigned" warning chips
+function jumpToItem(id) {
+  const el = document.getElementById("item-" + id);
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
+  el.classList.add("item--flash");
+  setTimeout(() => el.classList.remove("item--flash"), 1300);
 }
 
 function render() {

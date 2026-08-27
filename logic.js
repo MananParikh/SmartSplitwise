@@ -132,6 +132,20 @@ function qtyDenom(it) {
   state.people.forEach((p) => (t += Math.max(0, num((it.units || {})[p.id]))));
   return Math.max(q, t);
 }
+// dollars on an item that aren't assigned to anyone yet: a whole unassigned
+// equal-split item, or the leftover units of a partially-assigned qty item.
+function itemUnallocatedAmt(it) {
+  const price = num(it.price);
+  if (isQtyMode(it)) {
+    let totalU = 0;
+    state.people.forEach((p) => (totalU += Math.max(0, num((it.units || {})[p.id]))));
+    if (totalU <= 0) return price;
+    const denom = qtyDenom(it);
+    return (price * (denom - totalU)) / denom;
+  }
+  const a = (it.assigned || []).filter((id) => state.people.some((p) => p.id === id));
+  return a.length === 0 ? price : 0;
+}
 // what one person pays for one item (mirrors compute())
 function itemCostFor(it, pid) {
   const price = num(it.price);
@@ -169,7 +183,8 @@ function setMode(it, mode) {
 }
 function setUnits(it, personId, x) {
   it.units = it.units || {};
-  it.units[personId] = Math.max(0, Math.round(num(x)));
+  // allow fractional shares (0.25, 1.5, …); just clamp at 0 and trim float noise
+  it.units[personId] = Math.max(0, Math.round(num(x) * 10000) / 10000);
   render();
 }
 function setMe(id) {
@@ -231,7 +246,7 @@ function buildSummary() {
   const detail = (it, sh) => {
     if (isQtyMode(it)) {
       const q = Math.max(1, num(it.qty) || 1);
-      return sh.map((s) => `${s.p.name} ${s.units}/${q} = ${money(itemCostFor(it, s.p.id))}`).join(", ");
+      return sh.map((s) => `${s.p.name} ${fmtQty(s.units)}/${q} = ${money(itemCostFor(it, s.p.id))}`).join(", ");
     }
     return `${money(num(it.price) / sh.length)} each`;
   };
@@ -265,7 +280,7 @@ function buildSummary() {
       if (!arr || !arr.length) return;
       const items = arr
         .map(({ it }) => {
-          const q = isQtyMode(it) ? `${Math.max(0, num((it.units || {})[p.id]))}× ` : "";
+          const q = isQtyMode(it) ? `${fmtQty(Math.max(0, num((it.units || {})[p.id])))}× ` : "";
           return `${q}${it.name || "Item"} (${money(itemCostFor(it, p.id))})`;
         })
         .join(", ");

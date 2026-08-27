@@ -40,6 +40,11 @@ function num(v) {
   const n = parseFloat(v);
   return isNaN(n) ? 0 : n;
 }
+// format a quantity for display: allow fractions (0.25, 1.5) but drop float noise
+// and trailing zeros, so 2 shows as "2" and 0.25 as "0.25".
+function fmtQty(v) {
+  return String(Math.round(num(v) * 10000) / 10000);
+}
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, (c) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
