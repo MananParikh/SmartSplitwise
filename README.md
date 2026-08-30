@@ -54,8 +54,20 @@ Once the items are in:
 3. Anything you haven't fully assigned shows up in the results panel with the
    leftover amount and a link that jumps you straight to the item.
 4. Tax and fees get split in proportion to what each person actually bought.
-5. Hit **Copy summary for Splitwise** and paste the breakdown into the expense notes,
-   so everyone can see how it was worked out.
+5. **Copy summary** and paste the breakdown into a Splitwise expense's notes — or,
+   if you have Splitwise Pro, **Push to Splitwise** to post it directly (see below).
+
+## Getting it into Splitwise
+
+- **Copy summary** (free, always works): copies an item-by-item breakdown you paste
+  into the expense's notes.
+- **Push to Splitwise** (optional): posts the whole split straight to your Splitwise
+  account — pick a group, map each person to a Splitwise member, and it creates the
+  expense (payer paid it, everyone else owes their share) with that same breakdown in
+  the notes. It uses a personal Splitwise API key you paste once (stored locally).
+  **Heads up:** Splitwise now requires an active **Splitwise Pro** subscription to
+  register an app and get an API key, so this path isn't free. No Pro → use Copy
+  summary. (Extension only — a website can't call the Splitwise API without a backend.)
 
 ## The split, briefly
 
@@ -89,11 +101,12 @@ already filled in. Good for a quick look or a screen recording.
 - `parser.js` — turns pasted receipt text into structured data and loads it into state
 - `render.js` — draws the page from that state
 - `logic.js` — the split math, Splitwise summary, and the interactions
+- `splitwise.js` — optional: post the split to the Splitwise API (needs Splitwise Pro)
 - `demo.html` — standalone demo with sample data
 - `icons/` — the icon
 
 ## Still on my list
 
-- Push straight to the Splitwise API instead of copy/paste
+- A no-Pro path to Splitwise (their API now needs Pro, so the direct push is gated)
 - Monthly spending by category (groceries vs. eating out vs. gas)
 - Per-item custom percentages

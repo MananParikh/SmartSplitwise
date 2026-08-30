@@ -131,17 +131,31 @@
           <div id="warnings"></div>
           <div id="shares" class="shares"></div>
           <div class="settle" id="settle"></div>
+          <button class="btn btn--push" id="pushBtn">Push to Splitwise</button>
           <button class="btn btn--copy" id="copyBtn">
-            <span id="copyLabel">Copy summary for Splitwise</span>
+            <span id="copyLabel">Copy summary instead</span>
           </button>
           <div class="toast" id="toast" hidden>Copied to clipboard ✓</div>
         </div>
       </aside>
     </main>
 
+    <!-- Splitwise push modal -->
+    <div class="modal" id="swModal" hidden>
+      <div class="modal__backdrop" id="swBackdrop"></div>
+      <div class="modal__panel" role="dialog" aria-modal="true" aria-label="Push to Splitwise">
+        <div class="modal__head">
+          <h2>Push to Splitwise</h2>
+          <button class="modal__x" id="swClose" title="Close">×</button>
+        </div>
+        <div class="modal__body" id="swBody"><!-- filled by splitwise.js --></div>
+      </div>
+    </div>
+
     <script src="data.js"></script>
     <script src="render.js"></script>
     <script src="parser.js"></script>
     <script src="logic.js"></script>
+    <script src="splitwise.js"></script>
   </body>
 </html>
