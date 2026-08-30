@@ -65,6 +65,12 @@ Once the items are in:
   account — pick a group, map each person to a Splitwise member, and it creates the
   expense (payer paid it, everyone else owes their share) with that same breakdown in
   the notes. It uses a personal Splitwise API key you paste once (stored locally).
+
+  To set it up: register an app at
+  [secure.splitwise.com/apps](https://secure.splitwise.com/apps) — use an `https://`
+  homepage URL (this repo works; a `chrome-extension://` URL is rejected) — then click
+  **Create API key** and paste that key into **Push to Splitwise → Connect**.
+
   **Heads up:** Splitwise now requires an active **Splitwise Pro** subscription to
   register an app and get an API key, so this path isn't free. No Pro → use Copy
   summary. (Extension only — a website can't call the Splitwise API without a backend.)
