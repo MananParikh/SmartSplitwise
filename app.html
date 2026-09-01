@@ -34,6 +34,22 @@
     <main class="grid">
       <!-- LEFT -->
       <section class="col">
+        <!-- Upload a PDF receipt -->
+        <div class="card">
+          <div class="card__head"><h2>Upload a PDF receipt</h2></div>
+          <p class="card__sub">
+            Have a PDF receipt or invoice? Upload it and the items and totals are read
+            straight from the file's text — accurate, no typing. (Works for PDFs with
+            real text, not scanned-image PDFs.)
+          </p>
+          <label class="pdfdrop" id="pdfDrop" for="pdfFile">
+            <span class="pdfdrop__icon">📄</span>
+            <span class="pdfdrop__title">Choose a PDF, or drop one here</span>
+            <input class="pdfdrop__input" type="file" id="pdfFile" accept="application/pdf,.pdf" />
+          </label>
+          <div class="pdf-status" id="pdfStatus"></div>
+        </div>
+
         <!-- Paste a receipt -->
         <div class="card">
           <div class="card__head">
@@ -157,5 +173,7 @@
     <script src="parser.js"></script>
     <script src="logic.js"></script>
     <script src="splitwise.js"></script>
+    <script src="vendor/pdf.min.js"></script>
+    <script src="pdfreceipt.js"></script>
   </body>
 </html>

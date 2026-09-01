@@ -17,6 +17,8 @@ function parseReceiptText(text) {
     return m ? parseFloat(m[0].replace(/[^0-9.]/g, "")) : null;
   };
   const SUMMARY = /\b(sub[\s-]?total|sales?\s*tax|tax|gst|hst|vat|grand\s*total|order\s*total|total|delivery|service|shipping|driver\s*tip|tip|gratuity|bag\s*fee|fee|savings|discount|promo|coupon|balance|amount\s*due|payment)\b/i;
+  // receipt header/footer noise — skip so it never becomes an "item"
+  const JUNK = /\b(tel|phone|fax|hours?|closed|thank\s*you|powered\s*by|r\.?\s*no|transaction\s*by|no\s*description|amt|change|cash|card|visa|mastercard|amex|discover|debit|server|cashier|table|guest\s*count|order\s*#|receipt|www\.|\.com|\.net|\.org)\b/i;
   const lines = text.split(/\r?\n/).map((l) => l.replace(/\s+/g, " ").trim()).filter(Boolean);
 
   const detectQty = (s) => {
@@ -24,6 +26,7 @@ function parseReceiptText(text) {
     if ((m = s.match(/\bqty:?\s*(\d{1,3})\b/i))) return +m[1];
     if ((m = s.match(/^\s*(\d{1,3})\s*(?:x|×|@)\s+/i))) return +m[1];
     if ((m = s.match(/(?:x|×)\s*(\d{1,3})\b/i))) return +m[1];
+    if ((m = s.match(/^\s*(\d{1,2})\s+(?=[A-Za-z])/))) return +m[1]; // "4 Soju"
     return 1;
   };
   const stripQty = (s) =>
@@ -31,6 +34,7 @@ function parseReceiptText(text) {
       .replace(/^\d{1,3}\s*(?:x|×|@)\s*/i, "")
       .replace(/\bqty:?\s*\d{1,3}\b/i, "")
       .replace(/(?:x|×)\s*\d{1,3}\b/i, "")
+      .replace(/^\s*\d{1,2}\s+(?=[A-Za-z])/, "") // leading "1 " / "4 " quantity
       .replace(/\s+/g, " ")
       .trim();
 
@@ -42,6 +46,10 @@ function parseReceiptText(text) {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const prices = line.match(REG) || [];
+    if (JUNK.test(line)) {
+      pendingName = null;
+      continue;
+    }
     if (SUMMARY.test(line)) {
       pendingName = null;
       let val = prices.length ? parseM(prices[prices.length - 1]) : null;

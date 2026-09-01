@@ -17,11 +17,16 @@ Doing that in your head is a pain, so I let the computer do it.
 
 ## How it works
 
-Two ways to get a receipt in:
+Three ways to get a receipt in:
 
 - **Paste it.** Copy your itemized receipt — the email confirmation, a "view
   receipt" page, whatever — and paste it in. This is the reliable one; it works on
   any store.
+- **Upload a PDF.** Drop in a PDF receipt or invoice and the items and totals are
+  read straight from the file's text with [PDF.js](https://mozilla.github.io/pdf.js/)
+  (bundled locally — nothing leaves your machine). It rebuilds the lines from the
+  text positions so "item … price" parses cleanly. Only works for PDFs with a real
+  text layer, not scanned-image PDFs.
 - **Scan the page.** Click the toolbar icon on an order page and it tries to read
   the items straight from the page's data.
 
@@ -104,7 +109,9 @@ already filled in. Good for a quick look or a screen recording.
 - `scraper.js` — reads the order data off the page
 - `app.html` / `app.css` — the main window's markup and styling
 - `data.js` — app state and the storage that loads the scan/people into the page
-- `parser.js` — turns pasted receipt text into structured data and loads it into state
+- `parser.js` — turns receipt text (pasted, PDF, or scanned) into structured data
+- `pdfreceipt.js` — reads a PDF's text with PDF.js and rebuilds lines for the parser
+- `vendor/pdf.min.js`, `vendor/pdf.worker.min.js` — the bundled PDF.js library
 - `render.js` — draws the page from that state
 - `logic.js` — the split math, Splitwise summary, and the interactions
 - `splitwise.js` — optional: post the split to the Splitwise API (needs Splitwise Pro)

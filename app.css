@@ -205,6 +205,43 @@ button {
   line-height: 1.5;
   color: var(--muted);
 }
+
+/* PDF upload dropzone */
+.pdfdrop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border: 1.5px dashed var(--line);
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+  cursor: pointer;
+  background: rgba(0, 0, 0, 0.12);
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.pdfdrop:hover,
+.pdfdrop--drag {
+  border-color: var(--accent);
+  background: rgba(52, 211, 153, 0.06);
+}
+.pdfdrop__icon {
+  font-size: 24px;
+}
+.pdfdrop__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.pdfdrop__input {
+  display: none;
+}
+.pdf-status {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--accent);
+  min-height: 15px;
+}
 .pastebox {
   width: 100%;
   min-height: 130px;
